@@ -144,13 +144,28 @@ router.post('/login', async (req, res) => {
       updatedAt: new Date().toISOString()
     });
 
+    // Create a session document
+    const sessionId = uuidv4();
+    const sessionData = {
+      id: sessionId,
+      userId: userData.uid,
+      role: userData.role,
+      createdAt: new Date().toISOString(),
+      lastActiveAt: new Date().toISOString(),
+      userAgent: req.get('user-agent') || '',
+      ip: req.ip,
+      isActive: true,
+    };
+    await global.db.collection('sessions').doc(sessionId).set(sessionData);
+
     // Remove password from response
     delete userData.password;
 
     res.json({
       message: 'Login successful',
       user: userData,
-      token
+      token,
+      sessionId,
     });
 
   } catch (error) {
@@ -268,16 +283,26 @@ router.put('/change-password', verifyToken, async (req, res) => {
   }
 });
 
-// Logout (client-side token removal, but we can log it)
+// Logout (server logs + deactivate session)
 router.post('/logout', verifyToken, async (req, res) => {
   try {
     const userId = req.user.uid;
+    const { sessionId } = req.body || {};
 
     // Update last logout time
     await global.db.collection('users').doc(userId).update({
       lastLogout: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
+
+    // Mark session inactive if provided
+    if (sessionId) {
+      await global.db.collection('sessions').doc(sessionId).update({
+        isActive: false,
+        endedAt: new Date().toISOString(),
+        lastActiveAt: new Date().toISOString(),
+      });
+    }
 
     res.json({
       message: 'Logout successful'

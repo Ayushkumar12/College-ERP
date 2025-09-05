@@ -134,11 +134,12 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.LOGIN_START });
       
       const response = await authAPI.login(credentials);
-      const { user, token } = response.data;
+      const { user, token, sessionId } = response.data;
 
       // Store in localStorage
       localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(user));
+      if (sessionId) localStorage.setItem('sessionId', sessionId);
 
       dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
@@ -187,13 +188,15 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = async () => {
     try {
-      await authAPI.logout();
+      const sessionId = localStorage.getItem('sessionId');
+      await authAPI.logout(sessionId ? { sessionId } : {});
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       // Clear localStorage
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
+      localStorage.removeItem('sessionId');
       
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     }
