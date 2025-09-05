@@ -1,42 +1,158 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Mobile-First App Styles */
+.app {
+  width: 100%;
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
+  background-color: #f8f9fa;
+}
+
+/* Mobile Touch Optimization */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection for inputs and text areas */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Mobile Button Optimization */
+button, .btn, .auth-button {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Mobile Input Optimization */
+input, select, textarea {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 8px;
+  font-size: 16px; /* Prevents zoom on iOS */
+  min-height: 44px;
+}
+
+/* Error Page Styles */
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
   text-align: center;
+  background-color: #f8f9fa;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.error-page h1 {
+  color: #dc3545;
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.error-page p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  max-width: 500px;
+  line-height: 1.5;
+}
+
+/* Mobile Responsive Utilities */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+/* Mobile Breakpoints */
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .desktop-only {
+    display: none;
+  }
+  
+  /* Ensure full width on mobile */
+  .app {
+    width: 100vw;
+    overflow-x: hidden;
+  }
+  
+  /* Mobile-friendly spacing */
+  .container {
+    padding: 10px;
+  }
+  
+  /* Mobile text sizes */
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.3rem;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (max-width: 480px) {
+  /* Extra small mobile devices */
+  .container {
+    padding: 5px;
+  }
+  
+  h1 {
+    font-size: 1.6rem;
+  }
+  
+  h2 {
+    font-size: 1.4rem;
+  }
+  
+  h3 {
+    font-size: 1.2rem;
   }
 }
 
-.card {
-  padding: 2em;
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari */
+  .app {
+    min-height: -webkit-fill-available;
+  }
+  
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    font-size: 16px; /* Prevents zoom */
+  }
 }
 
-.read-the-docs {
-  color: #888;
+/* Android Chrome specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    font-size: 16px;
+  }
 }

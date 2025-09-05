@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import MobileWarning from './components/common/MobileWarning';
 
 // Import pages
 import LoginPage from './pages/auth/LoginPage';
@@ -75,6 +76,7 @@ function AppContent() {
   return (
     <Router>
       <div className="app">
+        <MobileWarning />
         <Routes>
           {/* Public Routes */}
           <Route

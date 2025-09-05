@@ -37,6 +37,18 @@ const QRScanner = ({ onScan, onError }) => {
             highlightScanRegion: true,
             highlightCodeOutline: true,
             preferredCamera: 'environment', // Use back camera on mobile
+            maxScansPerSecond: 5, // Optimize for mobile performance
+            calculateScanRegion: (video) => {
+              // Custom scan region for better mobile performance
+              const smallestDimension = Math.min(video.videoWidth, video.videoHeight);
+              const scanRegionSize = Math.round(0.7 * smallestDimension);
+              return {
+                x: Math.round((video.videoWidth - scanRegionSize) / 2),
+                y: Math.round((video.videoHeight - scanRegionSize) / 2),
+                width: scanRegionSize,
+                height: scanRegionSize,
+              };
+            },
           }
         );
 
@@ -128,6 +140,8 @@ const QRScanner = ({ onScan, onError }) => {
           className="scanner-video"
           playsInline
           muted
+          autoPlay
+          webkit-playsinline="true"
         />
         
         <div className="scanner-overlay">

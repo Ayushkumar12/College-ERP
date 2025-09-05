@@ -319,32 +319,115 @@
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
 }
 
+/* Mobile Optimizations */
+.scanner-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1); /* Mirror for front camera */
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .scanner-video {
+    -webkit-playsinline: true;
+    playsinline: true;
+  }
+}
+
 /* Responsive Design */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .qr-scanner-container {
-    padding: 0 10px;
+    padding: 0 15px;
+    gap: 15px;
   }
 
   .scanner-video-container {
-    max-width: 300px;
+    max-width: 350px;
   }
 
   .scanner-frame {
-    width: 200px;
-    height: 200px;
-  }
-
-  .corner {
-    width: 25px;
-    height: 25px;
+    width: 220px;
+    height: 220px;
   }
 
   .scanning-indicator {
-    width: 200px;
-    height: 200px;
+    width: 220px;
+    height: 220px;
+  }
+
+  .scanner-header h3 {
+    font-size: 16px;
+  }
+
+  .scanner-header p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .qr-scanner-container {
+    padding: 0 10px;
+    gap: 12px;
+  }
+
+  .scanner-video-container {
+    max-width: 280px;
+  }
+
+  .scanner-frame {
+    width: 180px;
+    height: 180px;
+  }
+
+  .corner {
+    width: 20px;
+    height: 20px;
+  }
+
+  .scanning-indicator {
+    width: 180px;
+    height: 180px;
   }
 
   .scanner-tips {
+    padding: 12px;
+  }
+
+  .scanner-tips h4 {
+    font-size: 14px;
+  }
+
+  .scanner-tips li {
+    font-size: 12px;
+  }
+
+  .error-help {
     padding: 15px;
+  }
+
+  .manual-input {
+    padding: 15px;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .qr-scanner-container {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: none;
+  }
+
+  .scanner-video-container {
+    flex-shrink: 0;
+    max-width: 300px;
+  }
+
+  .scanner-tips {
+    flex: 1;
+    max-width: none;
   }
 }
