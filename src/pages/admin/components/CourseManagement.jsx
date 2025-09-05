@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminAPI } from '../../../services/api';
+import { adminAPI, facultyAPI } from '../../../services/api';
 
 const CourseManagement = () => {
   const [courses, setCourses] = useState([]);
@@ -63,7 +63,10 @@ const CourseManagement = () => {
 
   const fetchFaculty = async () => {
     try {
-      const response = await adminAPI.getUsers({ role: 'faculty', limit: 100 });
+      // Use admin users endpoint to support department filter in the filters section
+      const params = {};
+      if (filters.department) params.department = filters.department; // optional backend support
+      const response = await adminAPI.getUsers({ role: 'faculty', limit: 100, ...params });
       setFaculty(response.data.users);
     } catch (error) {
       console.error('Error fetching faculty:', error);
@@ -84,6 +87,22 @@ const CourseManagement = () => {
 
   const handleFormChange = (key, value) => {
     setCourseForm(prev => ({ ...prev, [key]: value }));
+
+    // If department changes in the modal, refresh faculty list and reset selected faculty
+    if (key === 'department') {
+      setCourseForm(prev => ({ ...prev, facultyId: '' }));
+      fetchFacultyByDepartment(value);
+    }
+  };
+
+  const fetchFacultyByDepartment = async (department) => {
+    try {
+      // Prefer admin API with department filter if backend supports it, otherwise filter client-side
+      const response = await adminAPI.getUsers({ role: 'faculty', limit: 200, department });
+      setFaculty(response.data.users);
+    } catch (error) {
+      console.error('Error fetching faculty by department:', error);
+    }
   };
 
   const handleCreateCourse = () => {

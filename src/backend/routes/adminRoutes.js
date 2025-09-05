@@ -71,7 +71,7 @@ router.get('/dashboard', verifyToken, isAdmin, async (req, res) => {
 // Get all users with filters
 router.get('/users', verifyToken, isAdmin, async (req, res) => {
   try {
-    const { role, page = 1, limit = 20, search = '' } = req.query;
+    const { role, page = 1, limit = 20, search = '', department } = req.query;
 
     let query = global.db.collection('users');
     
@@ -87,6 +87,12 @@ router.get('/users', verifyToken, isAdmin, async (req, res) => {
       delete userData.password;
       users.push(userData);
     });
+
+    // Optional department filter (post-fetch to avoid composite index requirements)
+    if (department) {
+      const deptLower = String(department).toLowerCase();
+      users = users.filter(u => (u.department || '').toLowerCase() === deptLower);
+    }
 
     // Apply search filter
     if (search) {
