@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { adminAPI } from '../../../services/api';
 
 const CourseManagement = () => {
   const [courses, setCourses] = useState([]);
@@ -46,20 +46,16 @@ const CourseManagement = () => {
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const params = new URLSearchParams(
-        Object.entries(filters).filter(([_, value]) => value !== '')
+      // Filter out empty params
+      const params = Object.fromEntries(
+        Object.entries(filters).filter(([, value]) => value !== '')
       );
-      
-      const response = await axios.get(`/api/admin/courses?${params}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
+      const response = await adminAPI.getCourses(params);
       setCourses(response.data.courses);
       setPagination(response.data.pagination);
     } catch (error) {
       console.error('Error fetching courses:', error);
-      alert('Error fetching courses. Please try again.');
+      alert(error.response?.data?.error || 'Error fetching courses. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -67,10 +63,7 @@ const CourseManagement = () => {
 
   const fetchFaculty = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/admin/users?role=faculty&limit=100', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await adminAPI.getUsers({ role: 'faculty', limit: 100 });
       setFaculty(response.data.users);
     } catch (error) {
       console.error('Error fetching faculty:', error);
@@ -136,15 +129,11 @@ const CourseManagement = () => {
       
       if (editingCourse) {
         // Update existing course
-        await axios.put(`/api/admin/courses/${editingCourse.id}`, courseForm, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await adminAPI.updateCourse(editingCourse.id, courseForm);
         alert('Course updated successfully');
       } else {
         // Create new course
-        await axios.post('/api/admin/courses', courseForm, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await adminAPI.createCourse(courseForm);
         alert('Course created successfully');
       }
       
@@ -162,16 +151,12 @@ const CourseManagement = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/api/admin/courses/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
+      await adminAPI.deleteCourse(courseId);
       alert('Course deleted successfully');
       fetchCourses();
     } catch (error) {
       console.error('Error deleting course:', error);
-      alert('Error deleting course. Please try again.');
+      alert(error.response?.data?.error || 'Error deleting course. Please try again.');
     }
   };
 
