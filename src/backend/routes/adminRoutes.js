@@ -85,7 +85,8 @@ router.get('/users', verifyToken, isAdmin, async (req, res) => {
     snapshot.forEach(doc => {
       const userData = doc.data();
       delete userData.password;
-      users.push(userData);
+      // Ensure id and uid are present for frontend usage
+      users.push({ id: doc.id, uid: userData.uid || doc.id, ...userData });
     });
 
     // Optional department filter (post-fetch to avoid composite index requirements)
@@ -258,9 +259,14 @@ router.post('/courses', verifyToken, isAdmin, async (req, res) => {
 
     // Validate faculty if provided
     if (facultyId) {
-      const facultyDoc = await global.db.collection('faculty').doc(facultyId).get();
+      // First check faculty collection
+      let facultyDoc = await global.db.collection('faculty').doc(facultyId).get();
+      // Fallback: some UIs pass users.id; try users collection
       if (!facultyDoc.exists) {
-        return res.status(400).json({ error: 'Faculty member not found' });
+        const userDoc = await global.db.collection('users').doc(facultyId).get();
+        if (!userDoc.exists || (userDoc.exists && userDoc.data()?.role !== 'faculty')) {
+          return res.status(400).json({ error: 'Faculty member not found' });
+        }
       }
     }
 
@@ -298,9 +304,12 @@ router.put('/courses/:courseId', verifyToken, isAdmin, async (req, res) => {
 
     // Validate faculty if being updated
     if (updates.facultyId) {
-      const facultyDoc = await global.db.collection('faculty').doc(updates.facultyId).get();
+      let facultyDoc = await global.db.collection('faculty').doc(updates.facultyId).get();
       if (!facultyDoc.exists) {
-        return res.status(400).json({ error: 'Faculty member not found' });
+        const userDoc = await global.db.collection('users').doc(updates.facultyId).get();
+        if (!userDoc.exists || (userDoc.exists && userDoc.data()?.role !== 'faculty')) {
+          return res.status(400).json({ error: 'Faculty member not found' });
+        }
       }
     }
 
