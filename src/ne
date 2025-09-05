@@ -1,0 +1,55 @@
+import express from "npm:express@4.18.2";
+import cors from "npm:cors@2.8.5";
+import { createClient } from "npm:@supabase/supabase-js@2.39.0";
+// Initialize Supabase client with service role key for server-side operations
+const supabaseUrl = "https://wefiqurdxzszyepvrncw.supabase.co" ?? "";
+const supabaseServiceKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlZmlxdXJkeHpzenllcHZybmN3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NzA1MTM2MiwiZXhwIjoyMDcyNjI3MzYyfQ.yoiu-AfAlvTgqP9iEF6zgbgzq4j54D418W_jJ7hnNjk" ?? "";
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const app = express();
+app.use(cors({
+  origin: "*"
+}));
+app.use(express.json());
+/**
+ * Simple chatbot endpoint.
+ * Expects JSON body: { "message": "User text" }
+ * Returns a JSON response with a reply.
+ * In a real implementation you would call a LLM API here.
+ */ app.post("/chatbot/message", async (req, res)=>{
+  const { message } = req.body ?? {};
+  if (!message) {
+    return res.status(400).json({
+      error: "Missing 'message' in request body"
+    });
+  }
+  // Example: store the incoming message in a "messages" table (public schema)
+  // Table should have columns: id (uuid pk), user_id uuid, content text, role text
+  try {
+    const { data: stored, error } = await supabase.from("messages").insert({
+      user_id: (await supabase.auth.getUser()).data?.user?.id,
+      content: message,
+      role: "user"
+    }).select();
+    if (error) throw error;
+    // Placeholder bot reply – echo the message back
+    const reply = `You said: ${message}`;
+    // Store the bot reply as well
+    await supabase.from("messages").insert({
+      user_id: (await supabase.auth.getUser()).data?.user?.id,
+      content: reply,
+      role: "assistant"
+    });
+    return res.json({
+      reply
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      error: "Failed to process message"
+    });
+  }
+});
+// Edge Functions must listen on the default port 8000
+app.listen(8000, ()=>{
+  console.log("Chatbot edge function running on port 8000");
+});
