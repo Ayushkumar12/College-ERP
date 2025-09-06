@@ -446,7 +446,7 @@ router.post('/manual-mark', verifyToken, isFaculty, async (req, res) => {
 });
 
 // Get attendance statistics
-router.get('/statistics', verifyToken, isFaculty, async (req, res) => {
+router.get('/statistics', verifyToken, isStudent, async (req, res) => {
   try {
     const { courseId, startDate, endDate, studentId } = req.query;
     const facultyId = req.user.uid;
